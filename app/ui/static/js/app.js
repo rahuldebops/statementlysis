@@ -377,9 +377,9 @@ async function confirmCorrections() {
             value_date: txn.value_date || null,
             description: txn.description || '',
             reference_no: txn.reference_no || null,
-            debit: parseFloat(txn.debit) || null,
-            credit: parseFloat(txn.credit) || null,
-            balance: parseFloat(txn.balance) || null,
+            debit: parseFloat(String(txn.debit || '').replace(/,/g, '')) || null,
+            credit: parseFloat(String(txn.credit || '').replace(/,/g, '')) || null,
+            balance: parseFloat(String(txn.balance || '').replace(/,/g, '')) || null,
             txn_type: txn.txn_type || 'unknown',
             currency: txn.currency || 'INR',
         });

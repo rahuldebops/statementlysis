@@ -40,7 +40,7 @@ class DocumentService:
         filename: str,
         file_bytes: bytes,
         password: Optional[str] = None,
-    ) -> tuple[Document, ExtractionResult]:
+    ) -> tuple[Document, ExtractionResult, list[PredictedTransaction]]:
         """Upload a PDF, store it, run extraction, persist results."""
 
         # 1. Compute hash and check for duplicates
@@ -66,12 +66,23 @@ class DocumentService:
             result = self.pipeline.run(storage_path, password=password)
 
             # 5. Persist extraction data
-            await self._persist_extraction(doc, result)
+            predicted_records = await self._persist_extraction(doc, result)
 
             doc.status = DocumentStatus.PARSED.value
             doc.bank_id = result.bank_result.bank_id
             doc.total_pages = result.total_pages
             doc.statement_type = result.bank_result.statement_type.value
+
+            # Link to the parser version used
+            from sqlalchemy import select
+            from app.db.models import ParserVersion
+            stmt = select(ParserVersion.id).where(
+                ParserVersion.bank_id == result.bank_result.bank_id,
+                ParserVersion.version == result.parser_version
+            )
+            pv_id = (await self.session.execute(stmt)).scalar_one_or_none()
+            doc.parser_version_id = pv_id
+
             doc.processed_at = datetime.utcnow()
             await self.session.flush()
 
@@ -79,7 +90,7 @@ class DocumentService:
                 f"Extraction complete: {result.transaction_count} transactions, "
                 f"bank={result.bank_result.bank_id}"
             )
-            return doc, result
+            return doc, result, predicted_records
 
         except Exception as e:
             doc.status = DocumentStatus.FAILED.value
@@ -128,7 +139,7 @@ class DocumentService:
 
         return target_path
 
-    async def _persist_extraction(self, doc: Document, result: ExtractionResult) -> None:
+    async def _persist_extraction(self, doc: Document, result: ExtractionResult) -> list[PredictedTransaction]:
         """Persist all extraction artifacts to the database."""
 
         # Save pages, tokens, and lines
@@ -198,3 +209,5 @@ class DocumentService:
 
         if predicted_records:
             await self.txn_repo.save_predicted(predicted_records)
+            
+        return predicted_records

@@ -16,6 +16,7 @@ import fitz  # pymupdf
 from app.core.types import Token, PageData
 from app.core.exceptions import PDFExtractionError, PDFPasswordRequired, PDFPasswordIncorrect
 from app.config import settings
+from app.utils.text import sanitize_for_db
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class PDFEngine:
             for page_idx, page in enumerate(pdf.pages):
                 page_number = page_idx + 1
                 tokens: list[Token] = []
-                raw_text = page.extract_text() or ""
+                raw_text = sanitize_for_db(page.extract_text() or "")
 
                 words = page.extract_words(
                     x_tolerance=3,
@@ -85,7 +86,7 @@ class PDFEngine:
                 )
 
                 for seq, word in enumerate(words):
-                    text = word.get("text", "").strip()
+                    text = sanitize_for_db(word.get("text", "").strip())
                     if len(text) < self.min_token_length:
                         continue
 
@@ -139,13 +140,13 @@ class PDFEngine:
                 page = doc[page_idx]
                 page_number = page_idx + 1
                 tokens: list[Token] = []
-                raw_text = page.get_text("text") or ""
+                raw_text = sanitize_for_db(page.get_text("text") or "")
 
                 # Extract words with positions: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
                 word_list = page.get_text("words")
 
                 for seq, w in enumerate(word_list):
-                    text = w[4].strip()
+                    text = sanitize_for_db(w[4].strip())
                     if len(text) < self.min_token_length:
                         continue
 

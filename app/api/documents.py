@@ -39,7 +39,7 @@ async def upload_and_extract(
     service = DocumentService(db)
 
     try:
-        doc, result = await service.upload_and_extract(
+        doc, result, predicted_records = await service.upload_and_extract(
             filename=file.filename,
             file_bytes=file_bytes,
             password=password,
@@ -54,13 +54,15 @@ async def upload_and_extract(
         logger.error(f"Extraction failed: {e}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)[:300]}")
 
-    # Build response
+    # Build response using real database IDs
     transactions = []
-    for txn in result.transactions:
+    for i, txn in enumerate(result.transactions):
         conf = txn.confidence
+        db_record = predicted_records[i] if i < len(predicted_records) else None
+        
         transactions.append(
             PredictedTransactionSchema(
-                id=uuid.uuid4(),
+                id=db_record.id if db_record else uuid.uuid4(),
                 document_id=doc.id,
                 sequence=txn.sequence,
                 txn_date=txn.txn_date,
