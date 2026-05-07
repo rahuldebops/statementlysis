@@ -1,0 +1,26 @@
+# Core
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-dotenv==1.1.0
+pydantic==2.11.1
+pydantic-settings==2.8.1
+
+# Database
+sqlalchemy==2.0.40
+alembic==1.15.2
+psycopg2-binary==2.9.10
+asyncpg==0.30.0
+
+# PDF extraction
+pdfplumber==0.11.6
+pymupdf==1.25.5
+
+# ML (future use)
+scikit-learn==1.6.1
+numpy==2.2.4
+pandas==2.2.3
+
+# Utilities
+python-multipart==0.0.20
+aiofiles==24.1.0
+jinja2==3.1.6

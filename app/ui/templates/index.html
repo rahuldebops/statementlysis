@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered bank statement extraction platform for Indian banks. Upload PDFs, extract transactions, correct and train.">
+    <title>Statementlysis — Bank Statement Extraction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-logo">
+                <div class="app-logo-icon">S</div>
+                <span class="app-logo-text">Statementlysis</span>
+            </div>
+            <div class="header-status">
+                <button class="btn btn-ghost" id="password-toggle">🔒 Password</button>
+            </div>
+        </header>
+
+        <!-- Upload Zone -->
+        <section class="upload-section">
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop your bank statement PDF here or click to browse</div>
+                <div class="upload-subtext">Supports HDFC, SBI, ICICI and more • Digital PDFs only • Max 50MB</div>
+                <input type="file" class="upload-input" id="file-input" accept=".pdf">
+            </div>
+
+            <!-- Password Section -->
+            <div class="password-section" id="password-section">
+                <input type="password" id="password-input" placeholder="Enter PDF password (if protected)">
+            </div>
+        </section>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container" id="progress-bar">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text"></div>
+        </div>
+
+        <!-- Document Info -->
+        <div class="doc-info" id="doc-info">
+            <div class="doc-info-item">
+                <span class="doc-info-label">Filename</span>
+                <span class="doc-info-value" id="info-filename">-</span>
+            </div>
+            <div class="doc-info-item">
+                <span class="doc-info-label">Bank Detected</span>
+                <span class="doc-info-value" id="info-bank">-</span>
+            </div>
+            <div class="doc-info-item">
+                <span class="doc-info-label">Pages</span>
+                <span class="doc-info-value" id="info-pages">-</span>
+            </div>
+            <div class="doc-info-item">
+                <span class="doc-info-label">Status</span>
+                <span class="doc-info-value" id="info-status">-</span>
+            </div>
+            <div class="doc-info-item">
+                <span class="doc-info-label">Transactions</span>
+                <span class="doc-info-value" id="info-txn-count">0</span>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar" id="toolbar">
+            <div class="toolbar-left">
+                <span id="txn-count" style="color: var(--text-secondary); font-size: 14px;">0 transactions</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-ghost" id="btn-reset">↺ Reset</button>
+                <button class="btn btn-primary" id="btn-add-row">+ Add Row</button>
+                <button class="btn btn-success" id="btn-confirm">✓ Confirm</button>
+            </div>
+        </div>
+
+        <!-- Transaction Grid -->
+        <div class="grid-container" id="grid-container">
+            <table class="txn-table">
+                <thead>
+                    <tr>
+                        <th style="width:60px">#</th>
+                        <th style="width:110px">Txn Date</th>
+                        <th style="width:110px">Value Date</th>
+                        <th style="min-width:220px">Description</th>
+                        <th style="width:120px">Reference</th>
+                        <th style="width:120px">Debit</th>
+                        <th style="width:120px">Credit</th>
+                        <th style="width:130px">Balance</th>
+                        <th style="width:50px"></th>
+                    </tr>
+                </thead>
+                <tbody id="txn-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

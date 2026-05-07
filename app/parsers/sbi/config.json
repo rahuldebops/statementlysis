@@ -1,0 +1,42 @@
+{
+    "bank_id": "sbi",
+    "version": "1.1.0",
+    "headers": ["#", "Date", "Description", "Chq/Ref. No.", "Withdrawal (Dr.)", "Deposit (Cr.)", "Balance"],
+    "date_patterns": [
+        "\\d{2}\\s+\\w{3}\\s+\\d{4}",
+        "\\d{2}/\\d{2}/\\d{4}",
+        "\\d{2}-\\d{2}-\\d{4}",
+        "\\d{2}-\\w{3}-\\d{4}"
+    ],
+    "amount_patterns": [
+        "\\d{1,3}(?:,\\d{2,3})*\\.\\d{2}"
+    ],
+    "ignore_patterns": [
+        "^\\s*Page\\s+\\d+",
+        "^\\s*Statement\\s+(Generated|of)",
+        "^\\s*Rahul\\s+Deb",
+        "^\\s*Account\\s+(No|Summary|Statement|Type)",
+        "^\\s*Branch",
+        "^\\s*CRN",
+        "^\\s*IFSC",
+        "^\\s*MICR",
+        "^\\s*Welcome",
+        "^\\s*As on",
+        "^\\s*$"
+    ],
+    "header_keywords": ["Date", "Description", "Withdrawal", "Deposit", "Balance", "Chq", "Ref"],
+    "footer_keywords": ["Statement Generated", "Closing Balance", "Account Summary"],
+    "multiline_narration": true,
+    "columns": [
+        {"name": "serial",      "x_start": 39,  "x_end": 55,  "required": false},
+        {"name": "txn_date",    "x_start": 55,  "x_end": 120, "required": true},
+        {"name": "description", "x_start": 120, "x_end": 280, "required": true},
+        {"name": "ref_no",      "x_start": 280, "x_end": 350, "required": false},
+        {"name": "debit",       "x_start": 350, "x_end": 425, "required": false},
+        {"name": "credit",      "x_start": 425, "x_end": 495, "required": false},
+        {"name": "balance",     "x_start": 495, "x_end": 580, "required": false}
+    ],
+    "extra": {
+        "notes": "SBI savings statements use '# Date Description Chq/Ref. No. Withdrawal (Dr.) Deposit (Cr.) Balance' format. Dates are multi-token: '02 Mar 2026'. Column boundaries calibrated from 54XXXXX477 sample."
+    }
+}
