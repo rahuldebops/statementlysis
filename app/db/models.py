@@ -107,6 +107,12 @@ class Document(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now, index=True)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
+    # Google Drive Archival
+    drive_file_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    drive_uploaded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    drive_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
     __table_args__ = (
         Index("ix_documents_status", "status"),
     )

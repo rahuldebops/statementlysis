@@ -92,7 +92,11 @@ async def upload_and_extract(
         status=doc.status,
         transactions=transactions,
         transaction_count=len(transactions),
+        drive_file_id=doc.drive_file_id,
+        web_view_link=None, # We don't store it in DB currently, but doc.drive_file_id is there
+        upload_status="success" if doc.drive_file_id else "failed"
     )
+
 
 
 @router.get("", response_model=DocumentListResponse)

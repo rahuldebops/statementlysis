@@ -23,6 +23,8 @@ from app.extraction.pipeline import ExtractionPipeline, ExtractionResult
 from app.extraction.validator import TransactionValidator
 from app.repositories.document_repo import DocumentRepository
 from app.repositories.transaction_repo import TransactionRepository
+from app.services.google_drive_service import GoogleDriveService
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,8 @@ class DocumentService:
         self.doc_repo = DocumentRepository(session)
         self.txn_repo = TransactionRepository(session)
         self.pipeline = ExtractionPipeline()
+        self.drive_service = GoogleDriveService()
+
 
     async def upload_and_extract(
         self,
@@ -90,7 +94,18 @@ class DocumentService:
                 f"Extraction complete: {result.transaction_count} transactions, "
                 f"bank={result.bank_result.bank_id}"
             )
+
+            # 6. Upload to Google Drive
+            drive_info = await self._upload_to_drive(doc, result, storage_path)
+            
+            if drive_info:
+                doc.drive_file_id = drive_info.get("drive_file_id")
+                doc.drive_uploaded_at = datetime.utcnow()
+                doc.drive_hash = doc.sha256_hash
+                await self.session.flush()
+
             return doc, result, predicted_records
+
 
         except Exception as e:
             doc.status = DocumentStatus.FAILED.value
@@ -211,3 +226,60 @@ class DocumentService:
             await self.txn_repo.save_predicted(predicted_records)
             
         return predicted_records
+
+    async def _upload_to_drive(self, doc: Document, result: ExtractionResult, file_path: Path) -> Optional[dict]:
+        """Handle Google Drive archival upload."""
+        try:
+            # Check if already uploaded (by hash)
+            from sqlalchemy import select
+            stmt = select(Document).where(Document.drive_hash == doc.sha256_hash, Document.drive_file_id.isnot(None))
+            existing = (await self.session.execute(stmt)).scalar_one_or_none()
+            if existing:
+                logger.info(f"File with hash {doc.sha256_hash} already in Drive (ID: {existing.drive_file_id}). Skipping.")
+                return {
+                    "drive_file_id": existing.drive_file_id,
+                    "web_view_link": None, # Link might vary or we can fetch it if needed
+                    "status": "skipped"
+                }
+
+            # Determine naming details
+            bank = (result.bank_result.bank_id or "UNKNOWN").upper()
+            
+            # Try to extract Account Number (Last 4)
+            import re
+            account_match = re.search(r"Account (?:No|Number)[:\s]*(\d+)", result.pages[0].raw_text, re.IGNORECASE)
+            last4 = account_match.group(1)[-4:] if account_match and len(account_match.group(1)) >= 4 else "0000"
+            
+            # Dates
+            dates = [txn.txn_date for txn in result.transactions if txn.txn_date]
+            dates.sort()
+            
+            if dates:
+                start_date = dates[0]
+                end_date = dates[-1]
+                # Try to parse for Year/Month
+                from app.extraction.validator import TransactionValidator
+                first_dt = TransactionValidator.parse_date(start_date)
+                year = str(first_dt.year) if first_dt else "9999"
+                month = f"{first_dt.month:02d}" if first_dt else "00"
+            else:
+                start_date = "0000-00-00"
+                end_date = "0000-00-00"
+                year = "9999"
+                month = "00"
+
+            hash8 = doc.sha256_hash[:8].upper()
+            
+            # Filename: <BANK>_<ACCOUNT_LAST4>_<YEAR>_<MONTH>_<START_DATE>_<END_DATE>_<HASH8>.pdf
+            drive_filename = f"{bank}_{last4}_{year}_{month}_{start_date}_{end_date}_{hash8}.pdf"
+            
+            # Folder path: <ROOT>/statements/<BANK>/<YEAR>/
+            folder_id = self.drive_service.ensure_path(["statements", bank, year])
+            
+            # Upload
+            return self.drive_service.upload_file(file_path, folder_id, drive_filename)
+
+        except Exception as e:
+            logger.error(f"Google Drive upload failed for {doc.id}: {e}")
+            return None
+

@@ -4,10 +4,26 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dummy"
-    DATABASE_URL_SYNC: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/dummy"
-    DB_SCHEMA: str = "smtlysis"
+    # Database Selector
+    DB_TYPE: str = "local"  # local or neon
+
+    # Local Database
+    LOCAL_DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/ledgerlense"
+    LOCAL_DATABASE_URL_SYNC: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/ledgerlense"
+
+    # Neon Database
+    NEON_DATABASE_URL: str = ""
+    NEON_DATABASE_URL_SYNC: str = ""
+
+    DB_SCHEMA: str = "public"
+
+    @property
+    def DATABASE_URL(self) -> str:
+        return self.NEON_DATABASE_URL if self.DB_TYPE == "neon" else self.LOCAL_DATABASE_URL
+
+    @property
+    def DATABASE_URL_SYNC(self) -> str:
+        return self.NEON_DATABASE_URL_SYNC if self.DB_TYPE == "neon" else self.LOCAL_DATABASE_URL_SYNC
 
     # Storage
     PDF_STORAGE_PATH: str = "./storage/pdfs"
@@ -20,6 +36,11 @@ class Settings(BaseSettings):
 
     # Security
     SECRET_KEY: str = "change-me-in-production"
+
+    # Google Drive Archival
+    GOOGLE_DRIVE_CREDENTIALS_PATH: str = "./secrets/ledgerlense.json"
+    GOOGLE_DRIVE_ROOT_FOLDER_ID: str = ""
+
 
     # Extraction defaults
     TOKEN_Y_TOLERANCE: float = 3.0  # pixels tolerance for grouping tokens into lines

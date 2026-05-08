@@ -1,5 +1,5 @@
 /**
- * Statementlysis — Frontend Application
+ * LedgerLense — Frontend Application
  * Handles PDF upload, transaction grid display, inline editing, and corrections.
  */
 

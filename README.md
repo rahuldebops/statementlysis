@@ -1,4 +1,4 @@
-# Statementlysis
+# LedgerLense
 
 **AI/ML-ready bank statement extraction platform for Indian banks.**
 
@@ -21,26 +21,41 @@
 ### Setup
 
 ```bash
-# Create virtual environment
+# 1. Create and activate virtual environment
 python -m venv venv
-source venv/Scripts/activate   # Windows
-# source venv/bin/activate  # Linux/Mac
+.\venv\Scripts\Activate.ps1   # Windows PowerShell
 
-# Install dependencies
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# Create database
-createdb statementlysis
-
-# Copy and edit environment variables
+# 3. Environment Configuration
+# Copy .env.example to .env and configure your database
+# Choose between 'local' or 'neon' using DB_TYPE
 cp .env.example .env
 
-# Run migrations
-alembic upgrade head
+# 4. Fresh Database Initialization
+# This will drop all tables and create them fresh in the 'public' schema
+python scripts/run_migration.py
 
-# Start server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# 5. Start the server
+uvicorn app.main:app --reload
 ```
+
+### Database Configuration
+
+LedgerLense supports two database configurations in your `.env` file:
+
+1.  **Local**: For development using a local PostgreSQL instance.
+2.  **Neon**: For remote hosting on NeonDB.
+
+Set `DB_TYPE=local` or `DB_TYPE=neon` to toggle between them.
+The application now uses the `public` schema by default to ensure compatibility across different environments.
+
+
+> [!TIP]
+> On Windows, if you get an execution policy error when activating the venv, run:
+> `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
+
 
 ### Usage
 
@@ -57,6 +72,16 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `GET /api/v1/documents/{id}/transactions` — Get transactions for a document
 - `POST /api/v1/transactions/confirm` — Submit corrections
 - `POST /api/v1/models/retrain` — Trigger retraining (placeholder)
+
+## Google Drive Archival Setup
+
+LedgerLense automatically archives processed PDFs to Google Drive.
+
+1.  **Service Account**: Place your Google Service Account JSON file in `secrets/ledgerlense.json`.
+2.  **Shared Folder**: Create a folder in Google Drive and share it with the service account email as **Editor**.
+3.  **Environment Variables**: Update `.env` with:
+    - `GOOGLE_DRIVE_CREDENTIALS_PATH=./secrets/ledgerlense.json`
+    - `GOOGLE_DRIVE_ROOT_FOLDER_ID=your_folder_id_here`
 
 ## Architecture
 

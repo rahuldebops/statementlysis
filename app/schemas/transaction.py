@@ -89,3 +89,9 @@ class ExtractionResponse(BaseModel):
     status: str
     transactions: list[PredictedTransactionSchema] = []
     transaction_count: int = 0
+
+    # Drive Archival Response
+    drive_file_id: Optional[str] = None
+    web_view_link: Optional[str] = None
+    upload_status: str = "pending"
+

@@ -29,6 +29,9 @@ class DocumentSummary(BaseModel):
     total_pages: Optional[int] = None
     created_at: datetime
     processed_at: Optional[datetime] = None
+    drive_file_id: Optional[str] = None
+    drive_uploaded_at: Optional[datetime] = None
+
 
     model_config = {"from_attributes": True}
 

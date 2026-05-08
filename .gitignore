@@ -32,3 +32,9 @@ Thumbs.db
 # Alembic
 alembic/versions/*.py
 !alembic/versions/.gitkeep
+
+# Secrets & Credentials
+secrets/
+*.json
+!ledgerlense-9800b3f0f9f4.json.example
+

@@ -1,51 +1,51 @@
 """Application-level exceptions."""
 
 
-class StatementlysisError(Exception):
+class LedgerLenseError(Exception):
     """Base exception for the application."""
     pass
 
 
-class PDFExtractionError(StatementlysisError):
+class PDFExtractionError(LedgerLenseError):
     """Failed to extract content from PDF."""
     pass
 
 
-class PDFPasswordRequired(StatementlysisError):
+class PDFPasswordRequired(LedgerLenseError):
     """PDF is password-protected and no password was provided."""
     pass
 
 
-class PDFPasswordIncorrect(StatementlysisError):
+class PDFPasswordIncorrect(LedgerLenseError):
     """Provided password is incorrect."""
     pass
 
 
-class BankDetectionError(StatementlysisError):
+class BankDetectionError(LedgerLenseError):
     """Could not detect the bank from the statement."""
     pass
 
 
-class ParserNotFoundError(StatementlysisError):
+class ParserNotFoundError(LedgerLenseError):
     """No parser registered for the detected bank."""
     pass
 
 
-class ParserError(StatementlysisError):
+class ParserError(LedgerLenseError):
     """Error during parsing/extraction."""
     pass
 
 
-class ValidationError(StatementlysisError):
+class ValidationError(LedgerLenseError):
     """Transaction validation failed."""
     pass
 
 
-class DocumentNotFoundError(StatementlysisError):
+class DocumentNotFoundError(LedgerLenseError):
     """Requested document not found."""
     pass
 
 
-class DuplicateDocumentError(StatementlysisError):
+class DuplicateDocumentError(LedgerLenseError):
     """Document with same SHA256 already exists."""
     pass

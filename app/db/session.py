@@ -7,12 +7,18 @@ from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
 # Async engine for FastAPI
+connect_args = {}
+if "localhost" not in settings.DATABASE_URL and "127.0.0.1" not in settings.DATABASE_URL:
+    # Most cloud providers (like Neon) require SSL for asyncpg
+    connect_args["ssl"] = True
+
 async_engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     pool_size=10,
     max_overflow=20,
     pool_pre_ping=True,
+    connect_args=connect_args,
 )
 
 AsyncSessionLocal = async_sessionmaker(

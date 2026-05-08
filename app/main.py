@@ -1,4 +1,4 @@
-"""Statementlysis — FastAPI Application Entry Point."""
+"""LedgerLense — FastAPI Application Entry Point."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # ─── App ─────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="Statementlysis",
+    title="LedgerLense",
     description="AI/ML-ready bank statement extraction platform",
     version="0.1.0",
     docs_url="/docs",
@@ -93,7 +93,7 @@ async def serve_ui():
     index_path = ui_dir / "templates" / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return {"message": "Statementlysis API", "docs": "/docs"}
+    return {"message": "LedgerLense API", "docs": "/docs"}
 
 
 @app.get("/health")
