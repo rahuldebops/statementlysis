@@ -36,5 +36,8 @@ alembic/versions/*.py
 # Secrets & Credentials
 secrets/
 *.json
-!ledgerlense-9800b3f0f9f4.json.example
+!ledgerlense-*.json.example
 
+# Statements & Samples
+statements/
+samples/*.pdf

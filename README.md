@@ -20,27 +20,58 @@
 
 ### Setup
 
+#### 1. Create and Activate Virtual Environment
+
+**Bash (Git Bash, macOS, Linux):**
 ```bash
-# 1. Create and activate virtual environment
 python -m venv venv
-.\venv\Scripts\Activate.ps1   # Windows PowerShell
+source venv/Scripts/activate  # Windows Git Bash
+# OR source venv/bin/activate # macOS/Linux
+```
 
-# 2. Install dependencies
+**PowerShell:**
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+#### 2. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Environment Configuration
+#### 3. Environment Configuration
+```bash
 # Copy .env.example to .env and configure your database
-# Choose between 'local' or 'neon' using DB_TYPE
-cp .env.example .env
+cp .env.example .env                # Bash
+Copy-Item .env.example .env         # PowerShell
+```
 
-# 4. Fresh Database Initialization
-# This will drop all tables and create them fresh in the 'public' schema
-python scripts/run_migration.py
+#### 4. Database Initialization
+```bash
+# Bash
+APP_ENV=local python scripts/run_migration.py
 
-# 5. Start the server (Production/Neon)
-$env:APP_ENV="prod"; uvicorn app.main:app --reload
+# PowerShell
+$env:APP_ENV="local"; python scripts/run_migration.py
+```
 
-# OR Start the server (Local)
+#### 5. Google Drive Sync (Optional)
+To download initial statements and sync your local files to Drive:
+```bash
+# Bash
+APP_ENV=local python scripts/sync_drive.py
+
+# PowerShell
+$env:APP_ENV="local"; python scripts/sync_drive.py
+```
+
+#### 6. Start the Server
+```bash
+# Bash
+APP_ENV=local uvicorn app.main:app --reload
+
+# PowerShell
 $env:APP_ENV="local"; uvicorn app.main:app --reload
 ```
 
@@ -49,26 +80,21 @@ $env:APP_ENV="local"; uvicorn app.main:app --reload
 LedgerLense supports separate environment files. You can switch between them using the `APP_ENV` variable:
 
 - **Local Development**: Uses `.env` + `.env.local`
-  ```bash
-  $env:APP_ENV="local"; uvicorn app.main:app --reload
-  ```
 - **Production/Neon**: Uses `.env` + `.env.prod`
-  ```bash
-  $env:APP_ENV="prod"; uvicorn app.main:app --reload
-  ```
 
-> [!TIP]
-> On Windows PowerShell, use `$env:APP_ENV="prod"` before running commands. On Linux/Mac, use `APP_ENV=prod uvicorn ...`.
+**Setting Environment Variables:**
+- **Bash**: `APP_ENV=prod python ...` (prefixing the command)
+- **PowerShell**: `$env:APP_ENV="prod"; python ...` (using a semicolon)
 
 ### Usage Examples
 
 1. **Initializing a Fresh Database**:
    ```bash
-   # Initialize local DB
-   $env:APP_ENV="local"; python scripts/run_migration.py
+   # Bash
+   APP_ENV=local python scripts/run_migration.py
    
-   # Initialize production DB
-   $env:APP_ENV="prod"; python scripts/run_migration.py
+   # PowerShell
+   $env:APP_ENV="local"; python scripts/run_migration.py
    ```
 
 2. **Uploading Statements**:
@@ -91,13 +117,15 @@ LedgerLense supports separate environment files. You can switch between them usi
 
 ## Google Drive Archival Setup
 
-LedgerLense automatically archives processed PDFs to Google Drive.
+LedgerLense automatically archives processed PDFs to your personal Google Drive.
 
-1.  **Service Account**: Place your Google Service Account JSON file in `secrets/ledgerlense.json`.
-2.  **Shared Folder**: Create a folder in Google Drive and share it with the service account email as **Editor**.
-3.  **Environment Variables**: Update `.env` with:
-    - `GOOGLE_DRIVE_CREDENTIALS_PATH=./secrets/ledgerlense.json`
-    - `GOOGLE_DRIVE_ROOT_FOLDER_ID=your_folder_id_here`
+1.  **OAuth Credentials**: Ensure `oauth_client.json` is in the project root.
+2.  **First Run**: The first time you run the sync script or upload a file, a browser window will open for authentication.
+3.  **Persistance**: Authentication is saved to `secrets/token.json` and will auto-refresh.
+4.  **Environment Variables**: Update `.env` with:
+    - `GOOGLE_DRIVE_CREDENTIALS_PATH=./oauth_client.json`
+    - `GOOGLE_DRIVE_TOKEN_PATH=./secrets/token.json`
+    - `GOOGLE_DRIVE_ROOT_FOLDER_ID=` (leave empty to use 'My Drive' root)
 
 ## Architecture
 

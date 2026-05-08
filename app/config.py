@@ -37,8 +37,9 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "change-me-in-production"
 
-    # Google Drive Archival
-    GOOGLE_DRIVE_CREDENTIALS_PATH: str = "./secrets/ledgerlense.json"
+    # Google Drive Archival (OAuth2 User Auth)
+    GOOGLE_DRIVE_CREDENTIALS_PATH: str = "./oauth_client.json"
+    GOOGLE_DRIVE_TOKEN_PATH: str = "./secrets/token.json"
     GOOGLE_DRIVE_ROOT_FOLDER_ID: str = ""
 
 
