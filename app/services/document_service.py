@@ -273,8 +273,8 @@ class DocumentService:
             # Filename: <BANK>_<ACCOUNT_LAST4>_<YEAR>_<MONTH>_<START_DATE>_<END_DATE>_<HASH8>.pdf
             drive_filename = f"{bank}_{last4}_{year}_{month}_{start_date}_{end_date}_{hash8}.pdf"
             
-            # Folder path: <ROOT>/statements/<BANK>/<YEAR>/
-            folder_id = self.drive_service.ensure_path(["statements", bank, year])
+            # Folder path: <ROOT>/statements/
+            folder_id = self.drive_service.ensure_path(["statements"])
             
             # Upload
             return self.drive_service.upload_file(file_path, folder_id, drive_filename)

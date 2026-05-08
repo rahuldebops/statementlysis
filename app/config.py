@@ -53,11 +53,23 @@ class Settings(BaseSettings):
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+    @classmethod
+    def load_settings(cls):
+        import os
+        app_env = os.getenv("APP_ENV", "local")
+        env_file = ".env"
+        if app_env == "local":
+            env_file = (".env", ".env.local")
+        elif app_env == "prod":
+            env_file = (".env", ".env.prod")
+            
+        return cls(_env_file=env_file)
+
     model_config = {
-        "env_file": ".env",
         "env_file_encoding": "utf-8",
         "case_sensitive": True,
+        "extra": "ignore",
     }
 
 
-settings = Settings()
+settings = Settings.load_settings()

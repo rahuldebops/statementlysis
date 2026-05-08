@@ -159,9 +159,9 @@ class BankDetector:
             bank_matches: list[str] = []
 
             for pattern, weight in patterns:
-                found = re.findall(pattern, text, re.IGNORECASE)
+                found = re.search(pattern, text, re.IGNORECASE)
                 if found:
-                    bank_score += weight * len(found)
+                    bank_score += weight
                     bank_matches.append(pattern)
 
             if bank_score > 0:

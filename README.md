@@ -37,33 +37,49 @@ cp .env.example .env
 # This will drop all tables and create them fresh in the 'public' schema
 python scripts/run_migration.py
 
-# 5. Start the server
-uvicorn app.main:app --reload
+# 5. Start the server (Production/Neon)
+$env:APP_ENV="prod"; uvicorn app.main:app --reload
+
+# OR Start the server (Local)
+$env:APP_ENV="local"; uvicorn app.main:app --reload
 ```
 
-### Database Configuration
+### Database & Environment Configuration
 
-LedgerLense supports two database configurations in your `.env` file:
+LedgerLense supports separate environment files. You can switch between them using the `APP_ENV` variable:
 
-1.  **Local**: For development using a local PostgreSQL instance.
-2.  **Neon**: For remote hosting on NeonDB.
-
-Set `DB_TYPE=local` or `DB_TYPE=neon` to toggle between them.
-The application now uses the `public` schema by default to ensure compatibility across different environments.
-
+- **Local Development**: Uses `.env` + `.env.local`
+  ```bash
+  $env:APP_ENV="local"; uvicorn app.main:app --reload
+  ```
+- **Production/Neon**: Uses `.env` + `.env.prod`
+  ```bash
+  $env:APP_ENV="prod"; uvicorn app.main:app --reload
+  ```
 
 > [!TIP]
-> On Windows, if you get an execution policy error when activating the venv, run:
-> `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
+> On Windows PowerShell, use `$env:APP_ENV="prod"` before running commands. On Linux/Mac, use `APP_ENV=prod uvicorn ...`.
 
+### Usage Examples
 
-### Usage
+1. **Initializing a Fresh Database**:
+   ```bash
+   # Initialize local DB
+   $env:APP_ENV="local"; python scripts/run_migration.py
+   
+   # Initialize production DB
+   $env:APP_ENV="prod"; python scripts/run_migration.py
+   ```
 
-1. Open `http://localhost:8000` in your browser
-2. Upload a bank statement PDF
-3. Review extracted transactions in the editable grid
-4. Make corrections if needed
-5. Click "Confirm" to save corrections as training data
+2. **Uploading Statements**:
+   - Open `http://localhost:8000`.
+   - Drag and drop your bank PDF (e.g., Kotak, HDFC, SBI).
+   - The system will detect the bank and extract transactions.
+   - Files are automatically archived to Google Drive in the `/statements/` folder.
+
+3. **Verifying Detection**:
+   - If a bank is misidentified, check the terminal logs.
+   - Detection relies on keywords like "KOTAK MAHINDRA" or "IFSC: KKBK" in the first 3 pages.
 
 ### API
 
